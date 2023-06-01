@@ -7,7 +7,7 @@ import { customOpenapi } from "./rules/customOpenapi3";
 
 dotenv.config();
 const app: Application = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 const diffOptions: ApiDiffOptions = {
   rules: customOpenapi,
