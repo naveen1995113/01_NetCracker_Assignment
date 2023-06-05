@@ -1,0 +1,993 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom ApiSmartDiff</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/yaml/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/indent-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/api-smart-diff@0.6.8"></script>
+    <!-- <script src="../browser/api-smart-diff.js"></script> -->
+
+    <style>
+      body {
+        padding-top: 0;
+        margin-top: 0;
+      }
+      .CodeMirror {
+        border: 1px solid silver;
+        border-width: 1px 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <span style="float: left; width: 33%; height: 100%; margin-right: 0.5%">
+      <h2>Before (json or yaml)</h2>
+      <textarea id="before" title="before">
+openapi: 3.0.0
+info:
+  title: To-dos
+  version: 1.0.0
+  description: >
+    "![](https://i.ibb.co/v3Yt03v/todo-api-background.png)
+
+    ## U0001F4AB Overview
+
+    To Do API provides a simple way for people to manage their tasks and plan their day. This API can be used to create mobile and web applications.This API is documented using **OpenAPI 3.0**. The implementation lives in this [GitHub repo](https://github.com/stoplightio/studio-demo/blob/master/reference/todos/todo.v1.yaml).
+
+    ### U0001F9F0 Cross-Origin Resource Sharing
+    This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/). CORS support is necessary to make calls from the request maker within the API docs.
+
+    ### U0001F3C1 Trying out your own API Specification
+    Elements can be used to generate API docs for any OpenAPI document. Replace this OpenAPI with a URL to your own OpenAPI document to get started. "
+  contact:
+    name: Stoplight Support
+    email: support@stoplight.io
+    url: 'https://www.stoplight.io'
+  license:
+    name: MIT
+    url: 'https://spdx.org/licenses/MIT'
+  termsOfService: 'https://stoplight.io/terms/'
+servers:
+  - url: 'https://todos.stoplight.io'
+    description: Production
+  - description: Sandbox
+    url: 'https://todos-sandbox.stoplight.io'
+paths:
+  /todos:
+    get:
+      summary: List Todos
+      responses:
+        '200':
+          description: Returns a list of Todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todos'
+              examples:
+                List of Todos:
+                  $ref: '#/components/examples/multiple-todos'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-todos
+      description: >-
+        Returns a list of todos
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/contentType'
+      security: []
+  '/todos/{id}':
+    get:
+      summary: Get Todo
+      responses:
+        '200':
+          description: Returns the Todo for the ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todos'
+              examples:
+                Example Todo:
+                  $ref: '#/components/examples/todo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-todos-id
+      description: >-
+        Get a single todo using an ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters: []
+      security: []
+    put:
+      summary: Replace Todo
+      operationId: put-todos-id
+      responses:
+        '200':
+          description: Todo Updated
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todos'
+        description: ''
+      description: >-
+        Update a single todo using an ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters:
+        - $ref: '#/components/parameters/contentType'
+      security:
+        - API Key: []
+    delete:
+      summary: Delete Todo
+      operationId: delete-todos-id
+      responses:
+        '200':
+          description: Todo Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todos'
+              examples:
+                Example Todo:
+                  $ref: '#/components/examples/todo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: >-
+        Delete a todo using an ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      security:
+        - API Key: []
+    patch:
+      summary: Update Todo
+      operationId: patch-todos-id
+      responses:
+        '200':
+          description: Todo Updated
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      deprecated: true
+      description: >-
+        Don't use this endpoint. Notice it's deprecated.
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todos'
+      security:
+        - API Key: []
+    parameters:
+      - $ref: '#/components/parameters/ID'
+  /users:
+    get:
+      summary: Get User
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users
+      description: >-
+        Get a user by ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters:
+        - $ref: '#/components/parameters/contentType'
+      security: []
+    parameters: []
+    delete:
+      summary: Delete User
+      operationId: delete-users-userID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      description: Delete a user by ID
+      tags:
+        - Users
+      security:
+        - API Key: []
+    post:
+      summary: Create User
+      operationId: post-users-userID
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Example User:
+                  $ref: '#/components/examples/user'
+      description: Create a User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            examples: {}
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/contentType'
+      security:
+        - API Key: []
+components:
+  schemas:
+    Todos:
+      description: I'm a model's description.
+      type: object
+      x-examples: {}
+      title: Todo
+      properties:
+        id:
+          type: number
+          minimum: 0
+          maximum: 9999
+          description: ID of the task
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name of the task
+        completed:
+          type: boolean
+          default: false
+          description: Boolean indicating if the task has been completed or not
+        completed_at:
+          type: string
+          format: date-time
+          description: Time when the task was completed
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: Time when the task was created
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: Time when the task was updated
+          readOnly: true
+      required:
+        - id
+        - name
+        - completed_at
+        - created_at
+        - updated_at
+    User:
+      description: ''
+      type: object
+      title: User
+      properties:
+        userId:
+          type: number
+          description: ID of the user
+          readOnly: true
+        firstName:
+          type: string
+          minLength: 1
+          description: ''
+        lastName:
+          type: string
+          minLength: 1
+          description: ''
+        phoneNumber:
+          type: string
+          minLength: 1
+          description: Official Phone Number
+        emailAddress:
+          type: string
+          minLength: 1
+          description: Work Email Address
+      required:
+        - userId
+        - firstName
+        - lastName
+        - phoneNumber
+        - emailAddress
+  securitySchemes:
+    API Key:
+      name: apikey
+      type: apiKey
+      in: query
+      description: Just use `123`. It's super secure ;)
+  parameters:
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: number
+      description: >-
+        Return a limited set of results *I'm a shared parameter. I can be reused
+        in multiple endpoints!*
+    contentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        default: application/json
+      description: application/json
+    ID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: ID of the Todo
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            title: Error
+            type: object
+            description: A standard error object.
+            x-tags:
+              - Common
+            properties:
+              status:
+                type: string
+                description: A code.
+              error:
+                type: string
+            required:
+              - status
+              - error
+    Unauthorized:
+      description: Action not allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+  examples:
+    todo:
+      value:
+        id: 0
+        name: string
+        completed: true
+        completed_at: '2019-08-24T14:15:22Z'
+        created_at: '2019-08-24T14:15:22Z'
+        updated_at: '2019-08-24T14:15:22Z'
+    multiple-todos:
+      value:
+        - id: 0
+          name: my todo
+          completed: true
+          completed_at: '2019-08-24T14:15:22Z'
+          created_at: '2019-08-24T14:15:22Z'
+          updated_at: '2019-08-24T14:15:22Z'
+        - id: 1
+          name: another todo
+          completed: false
+          completed_at: '2019-08-24T14:15:22Z'
+          created_at: '2019-08-24T14:15:22Z'
+          updated_at: '2019-08-24T14:15:22Z'
+        - id: 2
+          name: yet another todo
+          completed: false
+          completed_at: '2019-08-24T14:15:22Z'
+          created_at: '2019-08-24T14:15:22Z'
+          updated_at: '2019-08-24T14:15:22Z'
+    user:
+      value:
+        userId: 2
+        firstName: racks
+        lastName: jacson
+        phoneNumber: '123456'
+        emailAddress: racks.jacson@learningcontainer.com
+tags:
+  - name: Todos
+
+      </textarea>
+    </span>
+    <span style="float: left; width: 33%; height: 100%; margin-right: 0.5%">
+      <h2>After (json or yaml)</h2>
+      <textarea id="after" title="after">
+       
+openapi: 3.0.0
+info:
+  title: To-dos
+  version: 1.0.0
+  description: >
+    "![](https://i.ibb.co/v3Yt03v/todo-api-background.png)
+
+    ## U0001F4AB Overview
+
+    To Do API provides a simple way for people to manage their tasks and plan their day. This API can be used to create mobile and web applications.This API is documented using **OpenAPI 3.0**. The implementation lives in this [GitHub repo](https://github.com/stoplightio/studio-demo/blob/master/reference/todos/todo.v1.yaml).
+
+    ### U0001F9F0 Cross-Origin Resource Sharing
+    This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/). CORS support is necessary to make calls from the request maker within the API docs.
+
+    ### U0001F3C1 Trying out your own API Specification
+    Elements can be used to generate API docs for any OpenAPI document. Replace this OpenAPI with a URL to your own OpenAPI document to get started. "
+  contact:
+    name: Stoplight Support
+    email: support@stoplight.io
+    url: 'https://www.stoplight.io'
+  license:
+    name: MIT
+    url: 'https://spdx.org/licenses/MIT'
+  termsOfService: 'https://stoplight.io/terms/'
+servers:
+  - url: 'https://todos.stoplight.io'
+    description: Production
+  - description: Sandbox
+    url: 'https://todos-sandbox.stoplight.io'
+paths:
+  /todos:
+    get:
+      summary: List Todos
+      responses:
+        '200':
+          description: Returns a list of Todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todos'
+              examples:
+                List of Todos:
+                  $ref: '#/components/examples/multiple-todos'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-todos
+      description: >-
+        Returns a list of todos
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/contentType'
+      security: []
+  '/todos/{id}':
+    get:
+      summary: Get Todo
+      responses:
+        '200':
+          description: Returns the Todo for the ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todos'
+              examples:
+                Example Todo:
+                  $ref: '#/components/examples/todo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-todos-id
+      description: >-
+        Get a single todo using an ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters: []
+      security: []
+    put:
+      summary: Replace Todo
+      operationId: put-todos-id
+      responses:
+        '200':
+          description: Todo Updated
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todos'
+        description: ''
+      description: >-
+        Update a single todo using an ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters:
+        - $ref: '#/components/parameters/contentType'
+      security:
+        - API Key: []
+    delete:
+      summary: Delete Todo
+      operationId: delete-todos-id
+      responses:
+        '200':
+          description: Todo Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todos'
+              examples:
+                Example Todo:
+                  $ref: '#/components/examples/todo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: >-
+        Delete a todo using an ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      security:
+        - API Key: []
+    patch:
+      summary: Update Todo
+      operationId: patch-todos-id
+      responses:
+        '200':
+          description: Todo Updated
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      deprecated: true
+      description: >-
+        Don't use this endpoint. Notice it's deprecated.
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todos'
+      security:
+        - API Key: []
+    parameters:
+      - $ref: '#/components/parameters/ID'
+  /users:
+    get:
+      summary: Get User
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users
+      description: >-
+        Get a user by ID
+
+
+        *Markdown is supported in descriptions. Add information here for users
+        to get accustomed to endpoints*
+      parameters:
+        - $ref: '#/components/parameters/contentType'
+      security: []
+    parameters: []
+    delete:
+      summary: Delete User
+      operationId: delete-users-userID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      description: Delete a user by ID
+      tags:
+        - Users
+      security:
+        - API Key: []
+    post:
+      summary: Create User
+      operationId: post-users-userID
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Example User:
+                  $ref: '#/components/examples/user'
+      description: Create a User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+            examples: {}
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/contentType'
+      security:
+        - API Key: []
+components:
+  schemas:
+    Todos:
+      description: I'm a model's description.
+      type: object
+      x-examples: {}
+      title: Todo
+      properties:
+        id:
+          type: number
+          minimum: 0
+          maximum: 9999
+          description: ID of the task
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name of the task
+        completed:
+          type: boolean
+          default: false
+          description: Boolean indicating if the task has been completed or not
+        completed_at:
+          type: string
+          format: date-time
+          description: Time when the task was completed
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          description: Time when the task was created
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          description: Time when the task was updated
+          readOnly: true
+      required:
+        - id
+        - name
+        - completed_at
+        - created_at
+        - updated_at
+    User:
+      description: ''
+      type: object
+      title: User
+      properties:
+        userId:
+          type: number
+          description: ID of the user
+          readOnly: true
+        firstName:
+          type: string
+          minLength: 1
+          description: ''
+        lastName:
+          type: string
+          minLength: 1
+          description: ''
+        phoneNumber:
+          type: string
+          minLength: 1
+          description: Official Phone Number
+        emailAddress:
+          type: string
+          minLength: 1
+          description: Work Email Address
+      required:
+        - userId
+        - firstName
+        - lastName
+        - phoneNumber
+        - emailAddress
+  securitySchemes:
+    API Key:
+      name: apikey
+      type: apiKey
+      in: query
+      description: Just use `123`. It's super secure ;)
+  parameters:
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: number
+      description: >-
+        Return a limited set of results *I'm a shared parameter. I can be reused
+        in multiple endpoints!*
+    contentType:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        default: application/json
+      description: application/json
+    ID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: ID of the Todo
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            title: Error
+            type: object
+            description: A standard error object.
+            x-tags:
+              - Common
+            properties:
+              status:
+                type: string
+                description: A code.
+              error:
+                type: string
+            required:
+              - status
+              - error
+    Unauthorized:
+      description: Action not allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+  examples:
+    todo:
+      value:
+        id: 0
+        name: string
+        completed: true
+        completed_at: '2019-08-24T14:15:22Z'
+        created_at: '2019-08-24T14:15:22Z'
+        updated_at: '2019-08-24T14:15:22Z'
+    multiple-todos:
+      value:
+        - id: 0
+          name: my todo
+          completed: true
+          completed_at: '2019-08-24T14:15:22Z'
+          created_at: '2019-08-24T14:15:22Z'
+          updated_at: '2019-08-24T14:15:22Z'
+        - id: 1
+          name: another todo
+          completed: false
+          completed_at: '2019-08-24T14:15:22Z'
+          created_at: '2019-08-24T14:15:22Z'
+          updated_at: '2019-08-24T14:15:22Z'
+        - id: 2
+          name: yet another todo
+          completed: false
+          completed_at: '2019-08-24T14:15:22Z'
+          created_at: '2019-08-24T14:15:22Z'
+          updated_at: '2019-08-24T14:15:22Z'
+    user:
+      value:
+        userId: 2
+        firstName: racks
+        lastName: jacson
+        phoneNumber: '123456'
+        emailAddress: racks.jacson@learningcontainer.com
+tags:
+  - name: Todos
+
+      </textarea>
+    </span>
+    <span id="action" style="float: left; width: 33%">
+      <h2>Result</h2>
+      <button onclick="showResult('merge')">merge</button>
+      <button onclick="showResult('diff')">diff-list</button>
+      <button onclick="showResult('diffTree')">diff-tree</button>
+
+      <br />
+      <br />
+      <label for="format">Output format:</label>
+      <select name="format" id="format">
+        <option value="yaml">yaml</option>
+        <option value="json">json</option>
+        <option value="js">js</option>
+      </select>
+      <br />
+      <br />
+      <label for="format">Resolve unchanged refs (on merge):</label>
+      <input type="checkbox" id="resolveUnchangedRefs" />
+    </span>
+
+    <span id="result" style="float: left; width: 33%">
+      <h2>Result</h2>
+      <textarea id="merged" title="merged"> </textarea>
+    </span>
+    <script id="script">
+      function pathArrayRules(rules) {
+        return ApiSmartDiff.matchRule(rules, ({ before, after }) => {
+          const beforePath = String(before.key).replace(
+            new RegExp("{.*?}", "g"),
+            "*"
+          );
+          const afterPath = String(after.key).replace(
+            new RegExp("{.*?}", "g"),
+            "*"
+          );
+          return beforePath !== afterPath;
+        });
+      }
+
+      const openapi = ApiSmartDiff.openapi3Rules;
+      const customApi = {
+        ...openapi,
+        "/paths": pathArrayRules({
+          "/": [
+            ApiSmartDiff.nonBreaking,
+            ApiSmartDiff.breaking,
+            ApiSmartDiff.breaking,
+          ],
+          "/*": pathArrayRules({
+            "/": [
+              ApiSmartDiff.nonBreaking,
+              ApiSmartDiff.breaking,
+              ApiSmartDiff.breaking,
+            ],
+            "/summary": ApiSmartDiff.allAnnotation,
+            "/description": ApiSmartDiff.allAnnotation,
+            "/*": openapi["/paths"]["/*"]["/*"],
+            "/servers": openapi["/paths"]["/*"]["/servers"],
+            "/parameters": openapi["/paths"]["/*"]["/parameters"],
+          }),
+        }),
+      };
+
+      function parseEditor(editor) {
+        try {
+          return JSON.parse(editor.getValue());
+        } catch (error) {
+          return jsyaml.load(editor.getValue());
+        }
+      }
+
+      function getResultData(type) {
+        const x = parseEditor(before);
+        const y = parseEditor(after);
+
+        const resolveUnchangedRefs = document.getElementById(
+          "resolveUnchangedRefs"
+        ).checked;
+        switch (type) {
+          case "merge":
+            return ApiSmartDiff.apiMerge(x, y, { resolveUnchangedRefs });
+          case "diff":
+            return ApiSmartDiff.apiDiff(x, y, { rules: customApi });
+          case "diffTree":
+            return ApiSmartDiff.apiDiffTree(x, y);
+        }
+      }
+
+      function showResult(type) {
+        document.getElementById("result").hidden = false;
+        document.getElementById("action").hidden = true;
+
+        const format = document.getElementById("format").value;
+        const res = getResultData(type);
+
+        let result =
+          format === "yaml"
+            ? jsyaml.dump(res, { noRefs: true, quotingType: '"' })
+            : JSON.stringify(res, null, 2);
+
+        result =
+          format === "js" ? result.replace(/"([^"]+)":/g, "$1:") : result;
+        merged.getDoc().setValue(result);
+      }
+
+      function hideResult() {
+        document.getElementById("result").hidden = true;
+        document.getElementById("action").hidden = false;
+      }
+
+      function createCodeMirror(id, readOnly = false) {
+        const editor = CodeMirror.fromTextArea(document.getElementById(id), {
+          mode: "yaml",
+          styleActiveLine: true,
+          lineNumbers: true,
+          lineWrapping: true,
+          foldGutter: true,
+          readOnly,
+          gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        });
+        editor.setSize("100%", "90%");
+        !readOnly && editor.on("change", hideResult);
+        return editor;
+      }
+
+      var before = createCodeMirror("before");
+      var after = createCodeMirror("after");
+      var merged = createCodeMirror("merged", true);
+
+      hideResult();
+    </script>
+  </body>
+</html>
