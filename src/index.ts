@@ -18,7 +18,7 @@ const pathArrayRules = (rules: Rules) =>
       new RegExp("{.*?}", "g"),
       "*"
     );
-    return beforePath !== afterPath;
+    return true;
   });
 
 const customApi = {
